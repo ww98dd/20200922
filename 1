@@ -1,0 +1,70 @@
+/*!
+ * MindPlus
+ * mpython
+ *
+ */
+#include <MPython.h>
+#include <MPython_ASR.h>
+// 函数声明
+uint32_t rgbToColor(uint8_t r, uint8_t g, uint8_t b);
+// 创建对象
+MPython_ASR mpythonAsr;
+String      str_mpythonAsr_result;
+
+
+// 主程序开始
+void setup() {
+	mPython.begin();
+}
+void loop() {
+	if ((touchPadT.isTouched())) {
+		while (!(!touchPadT.isTouched())) {
+			str_mpythonAsr_result=mpythonAsr.getAsrResult(2);
+			if (((String((str_mpythonAsr_result)).indexOf(String("开灯")) != -1))) {
+				rgb.write(0, 0x0000FF);
+			}
+			else {
+				rgb.write(-1, 0x000000);
+			}
+			yield();
+		}
+	}
+	else if ((touchPadP.isTouched())) {
+		while (!(!touchPadP.isTouched())) {
+			rgb.write(0, rgbToColor(round((light.read())), round((light.read())), round((light.read()))));
+			display.setCursor(0, 22);
+			display.print("环境光强度：");
+			display.setCursor(80, 22);
+			display.print((light.read()));
+			delay(500);
+			display.fillScreen(0);
+			yield();
+		}
+		rgb.write(0, 0x000000);
+	}
+	else if ((touchPadY.isTouched())) {
+		while (!(!touchPadY.isTouched())) {
+			display.setCursor(0, 22);
+			display.print("环境声音强度：");
+			display.setCursor(80, 22);
+			display.print((sound.read()));
+			delay(500);
+			display.fillScreen(0);
+			if (((sound.read())>=500)) {
+				rgb.write(1, 0xFF0000);
+			}
+			else {
+				rgb.write(1, 0x000000);
+			}
+			yield();
+		}
+		rgb.write(0, 0x000000);
+	}
+}
+
+
+// 静态函数
+uint32_t rgbToColor(uint8_t r, uint8_t g, uint8_t b)
+{
+  return (uint32_t)((((uint32_t)r<<16) | ((uint32_t)g<<8)) | (uint32_t)b);
+}
